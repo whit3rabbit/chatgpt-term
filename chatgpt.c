@@ -8,38 +8,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "api_key.h"
-
-struct MemoryStruct {
-  char *memory;
-  size_t size;
-};
-
-static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
-  size_t realsize = size * nmemb;
-  struct MemoryStruct *mem = (struct MemoryStruct *)userp;
-
-  void *temp_memory = realloc(mem->memory, mem->size + realsize + 1);
-  if (temp_memory == NULL) {
-    printf("Not enough memory (realloc returned NULL)\n");
-    return 0;
-  }
-  mem->memory = temp_memory;
-
-  memcpy(&(mem->memory[mem->size]), contents, realsize);
-  mem->size += realsize;
-  mem->memory[mem->size] = 0;
-
-  return realsize;
-}
-
-cJSON *extract_json_value(cJSON *json, const char *key) {
-  cJSON *value = cJSON_GetObjectItem(json, key);
-  if (!value) {
-    printf("Error: %s key not found in response\n", key);
-  }
-  return value;
-}
+#include "memory_struct.h"
+#include "json_utils.h"
+#include "api_key_utils.h"
 
 int main(int argc, char *argv[]) {
 
@@ -76,11 +47,6 @@ int main(int argc, char *argv[]) {
         close(file);
       }
     }
-  }
-
-  // Use the hardcoded value if neither the environment variable nor the config file is available
-  if (!api_key) {
-    api_key = API_KEY;
   }
 
   curl_global_init(CURL_GLOBAL_ALL);
@@ -158,7 +124,7 @@ int main(int argc, char *argv[]) {
     free(chunk.memory);
   }
 
-  if (api_key != NULL && api_key != getenv("OPENAI_API_KEY") && strcmp(api_key, API_KEY) != 0) {
+  if (api_key != NULL && api_key != getenv("OPENAI_API_KEY")) {
     free(api_key);
   }
 

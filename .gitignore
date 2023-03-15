@@ -1,6 +1,7 @@
 # Binary
 ./bin
 chatgpt
+chatgpt-static
 
 # Prerequisites
 *.d
