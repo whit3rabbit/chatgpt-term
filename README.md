@@ -1,73 +1,70 @@
-Ask chatgpt api questions directly from the terminal.
+# ChatGPT
 
-This was created by chatgpt4.
+A command-line tool to interact with OpenAI's GPT-3.5-turbo model using the OpenAI API.
 
-## Running
+## Prerequisites
 
-Set key three different ways:
+- A Unix-based system (Linux or macOS)
+- GCC compiler
+- `libcurl`, `cJSON`, and their development files
+- An OpenAI API key
 
-Terminal
+## Building the ChatGPT tool
+
+1. Clone the repository:
 ```
-export OPENAI_API_KEY="your_api_key"
+git clone https://github.com/whit3rabbit/chatgpt-term.git
 ```
-
-Hardocded
-```
-# Modify api_key.h and build normally
-# #define API_KEY "your_hardcoded_api_key"
-```
-
-Set in file
-```
-# Add key to file:
-# /etc/openai/chatgpt.config
-```
-
-## Development Build
+2. Change into the cloned directory:
 
 ```
-sudo apt-get update
-sudo apt-get install libcurl4-openssl-dev libidn2-dev
-
-# Build cJSON
-git clone https://github.com/DaveGamble/cJSON.git
-cd cJSON
-mkdir build
-cd build
-cmake -DBUILD_SHARED_LIBS=OFF ..
-make
-sudo make install
+cd chatgpt
 ```
+3. Build the ChatGPT tool:
 
-For static building:
 ```
-# Build curl without LDAP
-wget https://curl.se/download/curl-7.88.1.tar.gz
-tar xvf curl*
-cd curl-7.88.1
-./configure --disable-ldap --disable-ldaps --with-openssl
-make
-sudo make install
-sudo ldconfig
-
-# Build libunistring
-wget https://ftp.gnu.org/gnu/libunistring/libunistring-latest.tar.xz
-tar xf libunistring-latest.tar.xz
-cd libunistring-*/
-./configure --prefix=/usr/local
-make
-sudo make install
+make all
 ```
+4. (Optional) Build the static version of ChatGPT:
 
-To build a non-static executable (default), run:
-
-make
-
-To build a static executable, run:
+```
 make static
+```
 
-To install the executable to /usr/local/bin (default), run:
-sudo make install
+## Installation
 
-To install the executable to a local bin folder, run:
+1. Install the ChatGPT tool:
+```
+make install
+```
+2. Set up the configuration file in `/etc/openai/chatgpt.config` with your OpenAI API key:
+```
+API_KEY=your_api_key_here
+MODEL=gpt-3.5-turbo
+```
+3. (Optional) Install the ChatGPT tool locally:
+```
 make local
+```
+## Usage
+
+1. Run the ChatGPT tool with a question:
+```
+./chatgpt "tell me a haiku about market crash"
+Stocks tumble, prices fall
+Panic grips the market floor
+Losses mount, hope fades.
+```
+2. Alternatively, you can run the ChatGPT tool and enter the question when prompted:
+```
+./chatgpt 
+Enter your question: capital of france
+The capital of France is Paris.
+```
+## Clean up
+
+To clean up the compiled files, run:
+
+```
+make clean
+```
