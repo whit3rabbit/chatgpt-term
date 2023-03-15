@@ -1,3 +1,7 @@
+Ask chatgpt api questions directly from the terminal.
+
+This was created by chatgpt4.
+
 ## Running
 
 Set key three different ways:

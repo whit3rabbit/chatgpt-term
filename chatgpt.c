@@ -41,7 +41,8 @@ cJSON *extract_json_value(cJSON *json, const char *key) {
   return value;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+
   CURL *curl_handle;
   CURLcode res;
   struct MemoryStruct chunk;
@@ -87,14 +88,21 @@ int main() {
 
   if (curl_handle) {
     char question[256];
-    printf("Enter your question: ");
-    if (fgets(question, sizeof(question), stdin) == NULL) {
-      printf("Error reading input\n");
-      free(chunk.memory);
-      curl_global_cleanup();
-      return 1;
+
+    // Check if a question was provided as a command-line argument
+    if (argc > 1) {
+      strncpy(question, argv[1], sizeof(question) - 1);
+      question[sizeof(question) - 1] = '\0';
+    } else {
+      printf("Enter your question: ");
+      if (fgets(question, sizeof(question), stdin) == NULL) {
+        printf("Error reading input\n");
+        free(chunk.memory);
+        curl_global_cleanup();
+        return 1;
+      }
+      question[strcspn(question, "\n")] = 0;
     }
-    question[strcspn(question, "\n")] = 0;
 
     cJSON *request_data = cJSON_CreateObject();
     cJSON_AddStringToObject(request_data, "model", "gpt-3.5-turbo");
@@ -110,10 +118,10 @@ int main() {
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
-	
-	char auth_header[128];
-	snprintf(auth_header, sizeof(auth_header), "Authorization: Bearer %s", api_key);
-	headers = curl_slist_append(headers, auth_header);
+
+    char auth_header[128];
+    snprintf(auth_header, sizeof(auth_header), "Authorization: Bearer %s", api_key);
+    headers = curl_slist_append(headers, auth_header);
 
     curl_easy_setopt(curl_handle, CURLOPT_URL, "https://api.openai.com/v1/chat/completions");
     curl_easy_setopt(curl_handle, CURLOPT_POSTFIELDS, request_body);
@@ -127,13 +135,14 @@ int main() {
       fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
     } else {
       cJSON *response = cJSON_Parse(chunk.memory);
-      printf("Raw API response: %s\n", chunk.memory);
+      // printf("Raw API response: %s\n", chunk.memory); // Commented out to hide the raw API response
       if (response) {
         cJSON *choices = extract_json_value(response, "choices");
         cJSON *first_choice = choices ? cJSON_GetArrayItem(choices, 0) : NULL;
         cJSON *text = first_choice ? extract_json_value(first_choice, "message") : NULL;
         cJSON *content = text ? extract_json_value(text, "content") : NULL;
         if (content) {
+          printf("Question: %s\n", question);
           printf("Answer: %s\n", content->valuestring);
         }
         cJSON_Delete(response);
@@ -148,11 +157,11 @@ int main() {
     curl_easy_cleanup(curl_handle);
     free(chunk.memory);
   }
-  
+
   if (api_key != NULL && api_key != getenv("OPENAI_API_KEY") && strcmp(api_key, API_KEY) != 0) {
     free(api_key);
   }
-  
+
   curl_global_cleanup();
   return 0;
 }
