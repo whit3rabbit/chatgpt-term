@@ -11,6 +11,23 @@
 #include "memory_struct.h"
 #include "json_utils.h"
 #include "api_key_utils.h"
+#include "cjson_utils.h" 
+
+void remove_leading_newlines(char *str) {
+    char *src = str;
+    char *dst = str;
+
+    // Skip leading newline characters
+    while (*src && *src == '\n') {
+        src++;
+    }
+
+    // Copy the rest of the string
+    while (*src) {
+        *dst++ = *src++;
+    }
+    *dst = '\0';
+}
 
 int main(int argc, char *argv[]) {
 
@@ -70,17 +87,8 @@ int main(int argc, char *argv[]) {
       question[strcspn(question, "\n")] = 0;
     }
 
-    cJSON *request_data = cJSON_CreateObject();
-    cJSON_AddStringToObject(request_data, "model", "gpt-3.5-turbo");
-
-    cJSON *messages = cJSON_CreateArray();
-    cJSON *message = cJSON_CreateObject();
-    cJSON_AddStringToObject(message, "role", "user");
-    cJSON_AddStringToObject(message, "content", question);
-    cJSON_AddItemToArray(messages, message);
-
-    cJSON_AddItemToObject(request_data, "messages", messages);
-    char *request_body = cJSON_Print(request_data);
+    cJSON *request_data = create_request_data("gpt-3.5-turbo", question);
+    char *request_body = print_request_data(request_data);
 
     struct curl_slist *headers = NULL;
     headers = curl_slist_append(headers, "Content-Type: application/json");
@@ -94,11 +102,16 @@ int main(int argc, char *argv[]) {
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
     curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
     curl_easy_setopt(curl_handle, CURLOPT_HTTPHEADER, headers);
+    
+    long http_response_code = 0;
 
     res = curl_easy_perform(curl_handle);
+    curl_easy_getinfo(curl_handle, CURLINFO_RESPONSE_CODE, &http_response_code);
 
-    if (res != CURLE_OK) {
-      fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+    if (res != CURLE_OK || http_response_code != 200) {
+        fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+        fprintf(stderr, "HTTP response code: %ld\n", http_response_code);
+        fprintf(stderr, "Raw API response: %s\n", chunk.memory);
     } else {
       cJSON *response = cJSON_Parse(chunk.memory);
       // printf("Raw API response: %s\n", chunk.memory); // Commented out to hide the raw API response
@@ -108,8 +121,9 @@ int main(int argc, char *argv[]) {
         cJSON *text = first_choice ? extract_json_value(first_choice, "message") : NULL;
         cJSON *content = text ? extract_json_value(text, "content") : NULL;
         if (content) {
-          printf("Question: %s\n", question);
-          printf("Answer: %s\n", content->valuestring);
+            remove_leading_newlines(content->valuestring);
+            //printf("Question: %s\n", question); // Question output
+            printf("%s\n", content->valuestring); // Answer output
         }
         cJSON_Delete(response);
       } else {

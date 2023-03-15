@@ -11,16 +11,19 @@ all: $(TARGET)
 static: LDFLAGS = $(LDFLAGS_STATIC)
 static: $(TARGET)-static
 
-$(TARGET): chatgpt.o memory_struct.o json_utils.o api_key_utils.o
+$(TARGET): chatgpt.o memory_struct.o json_utils.o api_key_utils.o cjson_utils.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-$(TARGET)-static: chatgpt.o memory_struct.o json_utils.o api_key_utils.o
+$(TARGET)-static: chatgpt.o memory_struct.o json_utils.o api_key_utils.o cjson_utils.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 chatgpt.o: chatgpt.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 memory_struct.o: memory_struct.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+cjson_utils.o: cjson_utils.c
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 json_utils.o: json_utils.c
