@@ -29,6 +29,25 @@ void remove_leading_newlines(char *str) {
     *dst = '\0';
 }
 
+void parse_config_file(const char *config_file_path, char **api_key, char **model) {
+  FILE *file = fopen(config_file_path, "r");
+  if (file != NULL) {
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+      char *key, *value;
+      key = strtok(line, "=");
+      value = strtok(NULL, "\n");
+
+      if (strcmp(key, "API_KEY") == 0) {
+        *api_key = strdup(value);
+      } else if (strcmp(key, "MODEL") == 0) {
+        *model = strdup(value);
+      }
+    }
+    fclose(file);
+  }
+}
+
 int main(int argc, char *argv[]) {
 
   CURL *curl_handle;
@@ -43,27 +62,21 @@ int main(int argc, char *argv[]) {
   }
 
   char *api_key = NULL;
+  char *model = NULL;
 
   // Check for the environment variable
   api_key = getenv("OPENAI_API_KEY");
+  model = getenv("OPENAI_MODEL");
 
   // Read from config file if the environment variable is not set
-  if (!api_key) {
+  if (!api_key || !model) {
     char *config_file_path = "/etc/openai/chatgpt.config";
-    struct stat st;
-    if (stat(config_file_path, &st) == 0) {
-      int file = open(config_file_path, O_RDONLY);
-      if (file != -1) {
-        api_key = (char *)malloc(st.st_size + 1);
-        if (read(file, api_key, st.st_size) == st.st_size) {
-          api_key[st.st_size] = '\0';
-        } else {
-          free(api_key);
-          api_key = NULL;
-        }
-        close(file);
-      }
-    }
+    parse_config_file(config_file_path, &api_key, &model);
+  }
+
+// Set default model if not provided through environment variable or config file
+  if (!model) {
+    model = strdup("gpt-3.5-turbo");
   }
 
   curl_global_init(CURL_GLOBAL_ALL);
@@ -87,7 +100,7 @@ int main(int argc, char *argv[]) {
       question[strcspn(question, "\n")] = 0;
     }
 
-    cJSON *request_data = create_request_data("gpt-3.5-turbo", question);
+    cJSON *request_data = create_request_data(model, question);
     char *request_body = print_request_data(request_data);
 
     struct curl_slist *headers = NULL;
@@ -140,6 +153,10 @@ int main(int argc, char *argv[]) {
 
   if (api_key != NULL && api_key != getenv("OPENAI_API_KEY")) {
     free(api_key);
+  }
+
+  if (model) {
+    free(model);
   }
 
   curl_global_cleanup();
