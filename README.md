@@ -20,7 +20,18 @@ git clone https://github.com/whit3rabbit/chatgpt-term.git
 ```
 cd chatgpt
 ```
-3. Build the ChatGPT tool:
+3. Build cJSON
+```
+git clone https://github.com/DaveGamble/cJSON.git
+cd cJSON
+mkdir build
+cd build
+cmake -DBUILD_SHARED_LIBS=OFF ..
+make
+sudo make install
+```
+
+4. Build the ChatGPT tool:
 
 ```
 make all
@@ -28,6 +39,24 @@ make all
 4. (Optional) Build the static version of ChatGPT:
 
 ```
+# Build curl without LDAP
+wget https://curl.se/download/curl-7.88.1.tar.gz
+tar xvf curl*
+cd curl-7.88.1
+./configure --disable-ldap --disable-ldaps --with-openssl
+make
+sudo make install
+sudo ldconfig
+
+# Build libunistring
+wget https://ftp.gnu.org/gnu/libunistring/libunistring-latest.tar.xz
+tar xf libunistring-latest.tar.xz
+cd libunistring-*/
+./configure --prefix=/usr/local
+make
+sudo make install
+
+# Inside chatgpt-term folder
 make static
 ```
 
