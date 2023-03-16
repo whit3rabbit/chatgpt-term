@@ -1,0 +1,13 @@
+Source: chatgpt
+Section: utils
+Priority: optional
+Maintainer: whit3rabbit <whiterabbit@protonmail.com>
+Build-Depends: debhelper-compat (= 13), libcurl4-openssl-dev, libcjson-dev
+Standards-Version: 4.5.1
+Homepage: https://github.com/whit3rabbit/chatgpt-term
+
+Package: chatgpt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: ChatGPT CLI tool
+ A command-line tool to interact with OpenAI's chat model.
