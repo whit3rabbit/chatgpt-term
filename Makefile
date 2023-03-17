@@ -31,9 +31,9 @@ api_key_utils.o: api_key_utils.c
 install: $(TARGET)
 	install -d $(DESTDIR)$(PREFIX)/bin/
 	install -m 755 $(TARGET) $(DESTDIR)$(PREFIX)/bin/
-	mkdir -p /etc/openai
-	cp chatgpt.config.sample /etc/openai/chatgpt.config
-	chmod 600 /etc/openai/chatgpt.config
+	sudo mkdir -p /etc/openai
+	sudo cp chatgpt.config.sample /etc/openai/chatgpt.config
+	sudo chmod 600 /etc/openai/chatgpt.config
 	@echo "Remember to update the API key in /etc/openai/chatgpt.config"
 
 local: PREFIX = $(CURDIR)/bin
