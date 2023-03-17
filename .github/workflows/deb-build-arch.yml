@@ -33,7 +33,7 @@ jobs:
             gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
             gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
             gcc-arm-linux-gnueabi g++-arm-linux-gnueabi \
-            gcc-i686-linux-gnu g++-i686-linux-gnu
+            gcc-i686-linux-gnu g++-i686-linux-gnu debhelper
           
       - name: Configure and build
         run: |
