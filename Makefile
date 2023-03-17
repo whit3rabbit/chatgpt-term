@@ -1,10 +1,5 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -O2 -g
-CFLAGS += -I/usr/include -I/usr/include/cjson/
-CFLAGS += -I/usr/local/include/cjson/ -I/usr/local/include
-LDFLAGS = -L/usr/local/lib -lcurl -lcjson -lssl -lcrypto -lpthread -lz -ldl
-LDFLAGS_STATIC = -L/usr/local/lib -Wl,-Bstatic -lcurl -lcjson -lssl -lcrypto -Wl,-Bdynamic -lpthread -lz -ldl -lidn2 -l>TARGET = chatgpt
-PREFIX = /usr
+include config.mk
+
 TARGET = chatgpt
 
 all: $(TARGET)
