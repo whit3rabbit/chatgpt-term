@@ -49,15 +49,14 @@ jobs:
           ./configure --host="${compiler_prefix}"
           make
 
-      - name: Create DEB package
+      - name: Find DEB package
+        id: find-deb
         run: |
-          sudo apt-get install -y devscripts
-          mkdir deb_output
-          debuild -us -uc -ui
+          DEB_FILE=$(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
+          echo "DEB_FILE=$DEB_FILE" >> $GITHUB_ENV
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: |
-            $(find deb_output -name "chatgpt_0.01_${{ matrix.arch }}.deb")
+          path: ${{ env.DEB_FILE }}
