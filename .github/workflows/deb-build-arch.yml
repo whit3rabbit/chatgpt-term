@@ -46,7 +46,7 @@ jobs:
           esac
           export CC="${compiler_prefix}gcc"
           export CXX="${compiler_prefix}g++"
-          ./configure --host="${compiler_prefix}"
+          ./configure --host="${{ matrix.arch }}"
           make
 
       - name: Create DEB package
@@ -58,4 +58,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ../chatgpt_*_${{ matrix.arch }}.deb
+          path: ${{ github.workspace }}/../chatgpt_*_${{ matrix.arch }}.deb
+          if-no-files-found: warn
