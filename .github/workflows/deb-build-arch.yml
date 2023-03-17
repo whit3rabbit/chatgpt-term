@@ -46,20 +46,22 @@ jobs:
           esac
           export CC="${compiler_prefix}gcc"
           export CXX="${compiler_prefix}g++"
-          ./configure --host="${{ matrix.arch }}"
+          ./configure --host="${compiler_prefix}"
           make
 
       - name: Create DEB package
         run: |
           sudo apt-get install -y devscripts
-          mkdir -p deb_output
-          rsync -a --exclude=deb_output ./* deb_output/
-          cd deb_output
           debuild -us -uc -ui
+
+      - name: Find DEB file
+        id: find_deb
+        run: |
+          deb_path=$(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
+          echo "::set-output name=deb_path::$deb_path"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ${{ github.workspace }}/deb_output/chatgpt_*_${{ matrix.arch }}.deb
-          if-no-files-found: warn
+          path: ${{ steps.find_deb.outputs.deb_path }}
