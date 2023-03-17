@@ -60,4 +60,4 @@ jobs:
         with:
           name: chatgpt_${{ matrix.arch }}.deb
           path: |
-            $(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
+            $(find deb_output -name "chatgpt_0.01_${{ matrix.arch }}.deb")
