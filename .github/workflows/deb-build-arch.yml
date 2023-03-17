@@ -53,7 +53,7 @@ jobs:
         run: |
           sudo apt-get install -y devscripts
           mkdir -p deb_output
-          cp -r ./* deb_output/
+          rsync -a --exclude=deb_output ./* deb_output/
           cd deb_output
           debuild -us -uc -ui
 
