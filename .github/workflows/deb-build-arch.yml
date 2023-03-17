@@ -49,6 +49,12 @@ jobs:
           ./configure --host="${compiler_prefix}"
           make
 
+      - name: Create DEB package
+        run: |
+          sudo apt-get install -y devscripts
+          mkdir deb_output
+          debuild -us -uc -ui
+
       - name: Find DEB package
         id: find-deb
         run: |
