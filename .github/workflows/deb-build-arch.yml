@@ -14,7 +14,7 @@ on:
         - debug
   push:
     branches:
-      - debian
+      - main
 
 jobs:
   build-deb:
@@ -52,11 +52,14 @@ jobs:
       - name: Create DEB package
         run: |
           sudo apt-get install -y devscripts
+          mkdir -p deb_output
+          cp -r ./* deb_output/
+          cd deb_output
           debuild -us -uc -ui
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ${{ github.workspace }}/../chatgpt_*_${{ matrix.arch }}.deb
+          path: ${{ github.workspace }}/deb_output/chatgpt_*_${{ matrix.arch }}.deb
           if-no-files-found: warn
