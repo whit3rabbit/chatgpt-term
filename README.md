@@ -13,6 +13,7 @@ A command-line tool to interact with OpenAI's GPT-3.5-turbo model using the Open
 
 1. Clone the repository:
 ```
+sudo apt-get install libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
 git clone https://github.com/whit3rabbit/chatgpt-term.git
 ```
 2. Change into the cloned directory:
@@ -20,7 +21,7 @@ git clone https://github.com/whit3rabbit/chatgpt-term.git
 ```
 cd chatgpt
 ```
-3. Build cJSON
+3. (optional) Build cJSON from source
 ```
 git clone https://github.com/DaveGamble/cJSON.git
 cd cJSON
