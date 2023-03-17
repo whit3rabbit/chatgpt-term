@@ -26,21 +26,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install necessary build files
-        run: sudo apt-get update && sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
+      - name: Install dependencies and cross-compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev \
+            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
+            gcc-arm-linux-gnueabi g++-arm-linux-gnueabi \
+            gcc-i686-linux-gnu g++-i686-linux-gnu
+          
+      - name: Configure and build
+        run: |
+          case "${{ matrix.arch }}" in
+            amd64)  compiler_prefix="" ;;
+            arm64)  compiler_prefix="aarch64-linux-gnu-" ;;
+            armel)  compiler_prefix="arm-linux-gnueabi-" ;;
+            armhf)  compiler_prefix="arm-linux-gnueabihf-" ;;
+            i386)   compiler_prefix="i686-linux-gnu-" ;;
+          esac
+          export CC="${compiler_prefix}gcc"
+          export CXX="${compiler_prefix}g++"
+          ./configure --host="${compiler_prefix}"
+          make
 
-      - name: Install cross-compilation tools
-        run: sudo apt-get install -y gcc-${{ matrix.arch }}-linux-gnu g++-${{ matrix.arch }}-linux-gnu
-
-      - name: Build Debian package
-        env:
-          DEB_BUILD_OPTIONS: nocheck
-          DEB_HOST_ARCH: ${{ matrix.arch }}
-          CC: ${{ matrix.arch }}-linux-gnu-gcc
-          CXX: ${{ matrix.arch }}-linux-gnu-g++
+      - name: Create DEB package
         run: |
           sudo apt-get install -y devscripts
-          debuild -us -uc -ui --host-arch=${{ matrix.arch }}
+          debuild -us -uc -ui
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
