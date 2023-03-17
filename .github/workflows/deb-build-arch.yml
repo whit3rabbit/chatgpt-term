@@ -55,16 +55,9 @@ jobs:
           mkdir deb_output
           debuild -us -uc -ui
 
-      - name: Find DEB file
-        id: find_deb
-        run: |
-          deb_path=$(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
-          echo "::set-output name=deb_path::$deb_path"
-
       - name: Upload artifact
-        env:
-          DEB_PATH: ${{ steps.find-deb.outputs.deb-path }}
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ${{ env.DEB_PATH }}
+          path: |
+            $(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
