@@ -20,10 +20,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       
-      - name: Update and upgrade packages
-        run: |
-          sudo apt-get update
-\          
+      - name: Update repo
+        run: sudo apt-get update
+        
       - name: Install necessary build files
         run: sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
         
