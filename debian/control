@@ -2,7 +2,7 @@ Source: chatgpt
 Section: utils
 Priority: optional
 Maintainer: whit3rabbit <whiterabbit@protonmail.com>
-Build-Depends: debhelper-compat (= 13), libcurl4-openssl-dev, libcjson-dev
+Build-Depends: debhelper-compat (= 13), libssl-dev, libcrypto++-dev, zlib1g-dev, libcurl4-openssl-dev, libcjson-dev
 Standards-Version: 4.5.1
 Homepage: https://github.com/whit3rabbit/chatgpt-term
 
