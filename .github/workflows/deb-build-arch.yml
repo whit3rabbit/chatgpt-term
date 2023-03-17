@@ -62,7 +62,9 @@ jobs:
           echo "::set-output name=deb_path::$deb_path"
 
       - name: Upload artifact
+        env:
+          DEB_PATH: ${{ steps.find-deb.outputs.deb-path }}
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ${{ steps.find_deb.outputs.deb_path }}
+          path: ${{ env.DEB_PATH }}
