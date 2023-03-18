@@ -8,6 +8,7 @@ RUN apt-get update && \
     zlib1g-dev \
     libcurl4-openssl-dev \
     libcjson-dev \
+    sudo \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
