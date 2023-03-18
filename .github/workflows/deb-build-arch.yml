@@ -35,7 +35,7 @@ jobs:
         run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
 
       - name: Install dockcross script
-        run: docker run --rm custom-dockcross dockcross > dockcross && chmod +x dockcross
+        run: docker run --rm custom-dockcross > dockcross && chmod +x dockcross
 
       - name: Modify dockcross script to use custom image
         run: |
