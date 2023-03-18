@@ -14,7 +14,7 @@ on:
         - debug
   push:
     branches:
-      - debian
+      - main
 
 jobs:
   build-deb:
