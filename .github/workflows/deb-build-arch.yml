@@ -32,13 +32,14 @@ jobs:
       
     - name: Build package image
       run: |
+        docker buildx create -use --name my-container
+        docker buildx ls
         docker buildx build --platform linux/$arch -t my-package .
       env:
         arch: ${{ matrix.arch }}
       
     - name: Start container
       run: |
-        docker create --name my-container my-package
         docker start my-container
       
     - name: Extract package name and version
