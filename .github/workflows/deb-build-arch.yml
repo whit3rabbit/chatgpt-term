@@ -58,19 +58,10 @@ jobs:
         run: |
           mkdir -p deb_output
           cd ..
-          cp *.deb chatgpt-term/deb_output/        
+          cp *.deb chatgpt-term/deb_output/       
+
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: chatgpt_${{ matrix.arch }}.deb
           path: deb_output/chatgpt_*_${{ matrix.arch }}.deb
-
-      - name: Copy debug symbol package to deb_output folder
-        run: |
-          cp debian/.debhelper/scratch-space/build-chatgpt/chatgpt-dbgsym_*_${{ matrix.arch }}.ddeb deb_output/
-
-      - name: Upload debug symbol package
-        uses: actions/upload-artifact@v2
-        with:
-          name: chatgpt-dbgsym_${{ matrix.arch }}.ddeb
-          path: deb_output/chatgpt-dbgsym_*_${{ matrix.arch }}.ddeb
