@@ -26,21 +26,39 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      
     - name: Set up Docker
       uses: docker/setup-buildx-action@v1
-    - name: Cross-compile package
+      
+    - name: Build package image
       run: |
         docker buildx build --platform linux/$arch -t my-package .
+      
+    - name: Start container
+      run: |
         docker create --name my-container my-package
         docker start my-container
+      
+    - name: Extract package name and version
+      run: |
         PACKAGE_NAME=$(dpkg-parsechangelog | awk '/^Source:/ { print $2 }')
         PACKAGE_VERSION=$(dpkg-parsechangelog | awk '/^Version:/ { print $2 }')
+        echo "Package name: $PACKAGE_NAME"
+        echo "Package version: $PACKAGE_VERSION"
+      shell: bash
+      
+    - name: Build package
+      run: |
         docker exec -w /app my-container dpkg-buildpackage -us -uc
         docker cp my-container:/app/${PACKAGE_NAME}_${PACKAGE_VERSION}_${arch}.deb .
-        docker stop my-container
-        docker rm my-container
       env:
         arch: ${{ matrix.arch }}
+      
+    - name: Stop container
+      run: |
+        docker stop my-container
+        docker rm my-container
+      
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
