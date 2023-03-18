@@ -1,0 +1,21 @@
+#!/bin/bash
+# This script is a modified version of the Dockcross script
+# to use the custom built Dockcross image.
+
+set -e
+
+CUSTOM_DOCKCROSS_IMAGE="custom-dockcross"
+
+if [ "$1" = "--image" ]; then
+  docker run --rm $CUSTOM_DOCKCROSS_IMAGE
+  exit 0
+fi
+
+# Check if the container with the given name is already running.
+CONTAINER_NAME="dockcross_$$"
+RUNNING=$(docker inspect --format="{{ .State.Running }}" $CONTAINER_NAME 2>/dev/null || true)
+
+# If the container is not running, run it.
+if [ "$RUNNING" != "true" ]; then
+  docker run -i --name $CONTAINER_NAME --rm -a stdin -a stdout -a stderr -v $(pwd):/work -w /work $CUSTOM_DOCKCROSS_IMAGE "$@"
+fi

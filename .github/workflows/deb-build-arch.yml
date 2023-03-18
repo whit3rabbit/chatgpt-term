@@ -34,18 +34,14 @@ jobs:
       - name: Build custom dockcross image
         run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
 
-      - name: Install dockcross script
-        run: docker run --rm custom-dockcross > dockcross && chmod +x dockcross
-
-      - name: Modify dockcross script to use custom image
-        run: |
-          sed -i 's|dockcross/|custom-dockcross:|' dockcross
+      - name: Checkout custom dockcross script
+        run: chmod +x custom-dockcross
 
       - name: Configure and build
         run: |
           export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
           export DOCKCROSS_IMAGE_TAG="${{ matrix.config.dockcross_image }}"
-          ./dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
+          ./custom-dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
 
       - name: Create DEB package
         run: |
