@@ -41,16 +41,12 @@ jobs:
 
       - name: Create Dockcross script
         run: |
-          docker run --rm ${- name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: chatgpt_${{ matrix.arch }}.deb
-          path: deb_output/chatgpt_*_${{ matrix.arch }}.debmatrix.dockcross_image} > ./dockcross
+          docker run --rm ${{ matrix.dockcross_image }} > ./dockcross
           chmod +x ./dockcross
 
       - name: Configure and build
         run: |
-          ./dockcross bash -c "./configure --host=${{ matrix.dockcross_image }} && make"
+          ./dockcross bash -c "./configure --host=${{ matrix.arch }} && make"
 
       - name: Create DEB package
         run: ./dockcross bash -c "sudo apt-get install -y devscripts && debuild -us -uc -ui"
