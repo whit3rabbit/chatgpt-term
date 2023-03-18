@@ -8,6 +8,8 @@ libdir="/usr/lib"
 
 CC="gcc"
 
+find /usr/local/ -name "cJSON.h" > /dev/null 2>&1
+
 CFLAGS="-Wall -Wextra -O2 -g"
 CFLAGS="${CFLAGS} -I${includedir} -I${includedir}/cjson/"
 CFLAGS="${CFLAGS} -I/usr/local/include/cjson/ -I/usr/local/include"
