@@ -9,8 +9,16 @@ libdir="/usr/lib"
 CC="gcc"
 
 CFLAGS="-Wall -Wextra -O2 -g"
-CFLAGS="${CFLAGS} -I${includedir} -I${includedir}/cjson/"
-CFLAGS="${CFLAGS} -I/usr/local/include/cjson/ -I/usr/local/include"
+
+# Locate cJSON.h
+CJSON_INCLUDE_PATH=$(find /usr /usr/local -name 'cJSON.h' | head -1 | xargs dirname)
+
+if [ -z "$CJSON_INCLUDE_PATH" ]; then
+  echo "cJSON.h not found. Please install libcjson-dev."
+  exit 1
+fi
+
+CFLAGS="${CFLAGS} -I${CJSON_INCLUDE_PATH}"
 
 LDFLAGS="-L${libdir} -L/usr/local/lib"
 LDFLAGS="${LDFLAGS} -lcurl -lcjson -lssl -lcrypto -lpthread -lz -ldl"
