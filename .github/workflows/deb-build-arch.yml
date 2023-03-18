@@ -44,6 +44,9 @@ jobs:
           docker run --rm ${{ matrix.dockcross_image }} > ./dockcross
           chmod +x ./dockcross
 
+      - name: Install dependencies
+        run: ./dockcross bash -c "apt-get update && apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev"
+
       - name: Configure and build
         run: |
           ./dockcross bash -c "./configure --host=${{ matrix.arch }} && make"
