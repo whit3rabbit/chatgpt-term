@@ -34,11 +34,14 @@ jobs:
       - name: Build custom dockcross image
         run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
 
-      - name: Install dockcross script and replace image name
+      - name: Install dockcross script
         run: |
-          docker run --rm custom-dockcross > dockcross && chmod +x dockcross
-          sed -i 's|dockcross/linux-|custom-dockcross|g' dockcross
-          
+          docker run --rm custom-dockcross > dockcross
+          chmod +x dockcross
+          awk '{gsub(/dockcross\/linux-x64/, "custom-dockcross"); print}' dockcross > dockcross_modified
+          mv dockcross_modified dockcross
+          chmod +x dockcross
+
       - name: Configure and build
         run: |
           export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
