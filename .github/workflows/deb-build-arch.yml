@@ -14,51 +14,52 @@ on:
         - debug
   push:
     branches:
-      - main
+      - workflow-test
 
 jobs:
   build-deb:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, arm64, armel, armhf, i386]
+        include:
+          - arch: amd64
+            dockcross_image: dockcross/linux-x64
+          - arch: arm64
+            dockcross_image: dockcross/linux-arm64
+          - arch: armel
+            dockcross_image: dockcross/linux-armv5
+          - arch: armhf
+            dockcross_image: dockcross/linux-armv7
+          - arch: i386
+            dockcross_image: dockcross/linux-x86
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install dependencies and cross-compilers
+      - name: Pull Dockcross image
+        run: docker pull ${{ matrix.dockcross_image }}
+
+      - name: Create Dockcross script
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev \
-            gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
-            gcc-arm-linux-gnueabihf g++-arm-linux-gnueabihf \
-            gcc-arm-linux-gnueabi g++-arm-linux-gnueabi \
-            gcc-i686-linux-gnu g++-i686-linux-gnu debhelper
-          
+          docker run --rm ${- name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: chatgpt_${{ matrix.arch }}.deb
+          path: deb_output/chatgpt_*_${{ matrix.arch }}.debmatrix.dockcross_image} > ./dockcross
+          chmod +x ./dockcross
+
       - name: Configure and build
         run: |
-          case "${{ matrix.arch }}" in
-            amd64)  compiler_prefix="" ;;
-            arm64)  compiler_prefix="aarch64-linux-gnu-" ;;
-            armel)  compiler_prefix="arm-linux-gnueabi-" ;;
-            armhf)  compiler_prefix="arm-linux-gnueabihf-" ;;
-            i386)   compiler_prefix="i686-linux-gnu-" ;;
-          esac
-          export CC="${compiler_prefix}gcc"
-          export CXX="${compiler_prefix}g++"
-          ./configure --host="${compiler_prefix}"
-          make
+          ./dockcross bash -c "./configure --host=${{ matrix.dockcross_image }} && make"
 
       - name: Create DEB package
-        run: |
-          sudo apt-get install -y devscripts
-          debuild -us -uc -ui
+        run: ./dockcross bash -c "sudo apt-get install -y devscripts && debuild -us -uc -ui"
 
       - name: Copy DEB package to deb_output folder
         run: |
           mkdir -p deb_output
           cd ..
-          cp *.deb chatgpt-term/deb_output/       
+          cp *.deb chatgpt-term/deb_output/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
