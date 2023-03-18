@@ -34,25 +34,23 @@ jobs:
       - name: Build custom dockcross image
         run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
 
-      - name: Checkout custom dockcross script
-        run: chmod +x custom-dockcross
+      - name: Install dockcross script
+        run: docker run --rm custom-dockcross > dockcross && chmod +x dockcross
 
       - name: Configure and build
         run: |
           export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
           export DOCKCROSS_IMAGE_TAG="${{ matrix.config.dockcross_image }}"
-          ./custom-dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
+          ./dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
 
       - name: Create DEB package
         run: |
-          sudo apt-get install -y devscripts
-          debuild -us -uc -ui
+          ./dockcross bash -c "sudo apt-get update && sudo apt-get install -y devscripts && debuild -us -uc -ui"
 
       - name: Copy DEB package to deb_output folder
         run: |
           mkdir -p deb_output
-          cd ..
-          cp *.deb chatgpt-term/deb_output/
+          docker cp $(docker create custom-dockcross):/src/../*.deb deb_output/
 
       - name: Upload artifact
         uses: actions/upload-artifact@v2
