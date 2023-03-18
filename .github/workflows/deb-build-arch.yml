@@ -32,7 +32,7 @@ jobs:
       
     - name: Build package image
       run: |
-        docker buildx create -use --name my-container
+        docker buildx create --use --name my-container
         docker buildx ls
         docker buildx build --platform linux/$arch -t my-package .
       env:
