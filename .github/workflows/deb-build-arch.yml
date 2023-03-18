@@ -57,9 +57,8 @@ jobs:
       - name: Copy DEB package to deb_output folder
         run: |
           mkdir -p deb_output
-          deb_file=$(find /home/runner/work/ -type f -name "chatgpt_*_${{ matrix.arch }}.deb")
-          cp "$deb_file" deb_output/
-
+          ls -la ..
+          cp ../chatgpt_*_${{ matrix.arch }}.deb deb_output/
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
