@@ -14,45 +14,35 @@ on:
         - debug
   push:
     branches:
-      - workflow-test
+      - main
 
 jobs:
   build-deb:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - arch: amd64
-            dockcross_image: dockcross/linux-x64
-          - arch: arm64
-            dockcross_image: dockcross/linux-arm64
-          - arch: armel
-            dockcross_image: dockcross/linux-armv5
-          - arch: armhf
-            dockcross_image: dockcross/linux-armv7
-          - arch: i386
-            dockcross_image: dockcross/linux-x86
+        arch: [amd64, arm64, armel, armhf, i386]
+        dockcross_image: ['linux-x64', 'linux-arm64', 'linux-armel', 'linux-armhf', 'linux-x86']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Pull Dockcross image
-        run: docker pull ${{ matrix.dockcross_image }}
-
-      - name: Create Dockcross script
-        run: |
-          docker run --rm ${{ matrix.dockcross_image }} > ./dockcross
-          chmod +x ./dockcross
-
-      - name: Install dependencies
-        run: ./dockcross bash -c "apt-get update && apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev"
+      - name: Build custom dockcross image
+        run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
+      
+      - name: Install dockcross script
+        run: docker run --rm custom-dockcross > dockcross && chmod +x dockcross
 
       - name: Configure and build
         run: |
-          ./dockcross bash -c "./configure --host=${{ matrix.arch }} && make"
+          export CROSS_HOST_ARCH="${{ matrix.arch }}"
+          export DOCKCROSS_IMAGE_TAG="${{ matrix.dockcross_image }}"
+          ./dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
 
       - name: Create DEB package
-        run: ./dockcross bash -c "sudo apt-get install -y devscripts && debuild -us -uc -ui"
+        run: |
+          sudo apt-get install -y devscripts
+          debuild -us -uc -ui
 
       - name: Copy DEB package to deb_output folder
         run: |
