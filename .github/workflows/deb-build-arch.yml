@@ -59,10 +59,10 @@ jobs:
         id: find-deb
         run: |
           DEB_FILE=$(find deb_output -name "chatgpt_*_${{ matrix.arch }}.deb")
-          echo "DEB_FILE=$DEB_FILE" >> $GITHUB_ENV
+          echo "::set-output name=filename::$DEB_FILE"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v1
         with:
           name: chatgpt_${{ matrix.arch }}.deb
-          path: ${{ env.DEB_FILE }}
+          path: ${{ steps.find-deb.outputs.filename }}
