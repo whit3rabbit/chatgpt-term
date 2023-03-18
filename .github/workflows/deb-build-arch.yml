@@ -21,22 +21,26 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [amd64, arm64, armel, armhf, i386]
-        dockcross_image: ['linux-x64', 'linux-arm64', 'linux-armel', 'linux-armhf', 'linux-x86']
+        config:
+          - {arch: amd64, dockcross_image: 'linux-x64'}
+          - {arch: arm64, dockcross_image: 'linux-arm64'}
+          - {arch: armel, dockcross_image: 'linux-armel'}
+          - {arch: armhf, dockcross_image: 'linux-armhf'}
+          - {arch: i386, dockcross_image: 'linux-x86'}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Build custom dockcross image
         run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
-      
+
       - name: Install dockcross script
         run: docker run --rm custom-dockcross > dockcross && chmod +x dockcross
 
       - name: Configure and build
         run: |
-          export CROSS_HOST_ARCH="${{ matrix.arch }}"
-          export DOCKCROSS_IMAGE_TAG="${{ matrix.dockcross_image }}"
+          export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
+          export DOCKCROSS_IMAGE_TAG="${{ matrix.config.dockcross_image }}"
           ./dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
 
       - name: Create DEB package
@@ -53,5 +57,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: chatgpt_${{ matrix.arch }}.deb
-          path: deb_output/chatgpt_*_${{ matrix.arch }}.deb
+          name: chatgpt_${{ matrix.config.arch }}.deb
+          path: deb_output/chatgpt_*_${{ matrix.config.arch }}.deb
