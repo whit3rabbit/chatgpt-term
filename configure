@@ -11,12 +11,14 @@ CC="gcc"
 CFLAGS="-Wall -Wextra -O2 -g"
 
 # Locate cJSON.h
-CJSON_INCLUDE_PATH=$(find /usr /usr/local -name 'cJSON.h' | head -1 | xargs dirname)
+CJSON_INCLUDE_PATH=$(find /usr /usr/local -name 'cJSON.h' | head -1)
 
 if [ -z "$CJSON_INCLUDE_PATH" ]; then
   echo "cJSON.h not found. Please install libcjson-dev."
   exit 1
 fi
+
+CJSON_INCLUDE_PATH=$(dirname "$CJSON_INCLUDE_PATH")
 
 CFLAGS="${CFLAGS} -I${CJSON_INCLUDE_PATH}"
 
@@ -26,8 +28,4 @@ LDFLAGS="${LDFLAGS} -lcurl -lcjson -lssl -lcrypto -lpthread -lz -ldl"
 cat << EOF > config.mk
 CC=${CC}
 CFLAGS=${CFLAGS}
-LDFLAGS=${LDFLAGS}
-PREFIX=${prefix}
-EOF
-
-echo "Configuration complete. You can now run 'make'."
+LDFLAGS=${LDFLAGS
