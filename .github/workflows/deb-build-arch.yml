@@ -17,45 +17,32 @@ on:
       - workflow-test
 
 jobs:
-  build-deb:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        config:
-          - {arch: amd64, dockcross_image: 'linux-x64'}
-          - {arch: arm64, dockcross_image: 'linux-arm64'}
-          - {arch: armel, dockcross_image: 'linux-armel'}
-          - {arch: armhf, dockcross_image: 'linux-armhf'}
-          - {arch: i386, dockcross_image: 'linux-x86'}
+        os: [ubuntu-latest]
+        arch: [arm64, amd64]
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Build custom dockcross image
-        run: docker build -t custom-dockcross -f Dockerfile.crosscompile .
-
-      - name: Install dockcross script
-        run: |
-          docker run --rm custom-dockcross > dockcross
-          chmod +x dockcross
-
-      - name: Configure and build
-        run: |
-          export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
-          export DOCKCROSS_IMAGE_TAG="${{ matrix.config.dockcross_image }}"
-          ./dockcross --image custom-dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
-
-      - name: Create DEB package
-        run: |
-          ./dockcross bash -c "sudo apt-get update && sudo apt-get install -y devscripts && debuild -us -uc -ui"
-
-      - name: Copy DEB package to deb_output folder
-        run: |
-          mkdir -p deb_output
-          docker cp $(docker create custom-dockcross):/src/../*.deb deb_output/
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: chatgpt_${{ matrix.config.arch }}.deb
-          path: deb_output/chatgpt_*_${{ matrix.config.arch }}.deb
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Set up Docker
+      uses: docker/setup-buildx-action@v1
+    - name: Cross-compile package
+      run: |
+        docker buildx build --platform linux/$arch -t my-package .
+        docker create --name my-container my-package
+        docker start my-container
+        PACKAGE_NAME=$(dpkg-parsechangelog | awk '/^Source:/ { print $2 }')
+        PACKAGE_VERSION=$(dpkg-parsechangelog | awk '/^Version:/ { print $2 }')
+        docker exec -w /app my-container debuild -us -uc -b
+        docker cp my-container:/app/${PACKAGE_NAME}_${PACKAGE_VERSION}_${arch}.deb .
+        docker stop my-container
+        docker rm my-container
+      env:
+        arch: ${{ matrix.arch }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
+        path: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
