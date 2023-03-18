@@ -25,9 +25,8 @@ jobs:
         arch: [arm64, amd64]
     steps:
       - uses: actions/checkout@v2
-      
-      - name: Install necessary build files
-        run: sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
+        with:
+          fetch-depth: 0
       
       - name: Build package
         uses: jtdor/build-deb-action@v1
@@ -35,7 +34,7 @@ jobs:
           apt-opts: --no-install-recommends
           artifacts-dir: .
           docker-image: debian:bullseye-slim
-          extra-build-deps: ''
+          extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
           host-arch: ${{ matrix.arch }}
           before-build-hook: |
             export DEBEMAIL="whit3rabbit <whiterabbit@protonmail.com>"
