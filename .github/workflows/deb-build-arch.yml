@@ -17,53 +17,35 @@ on:
       - workflow-test
 
 jobs:
-  build:
+  build-deb:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [ubuntu-latest]
         arch: [arm64, amd64]
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v1
+      - name: Install necessary build files
+        run: sudo apt-get install -y libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
       
-    - name: Build package image
-      run: |
-        docker buildx create --use --name my-container
-        docker buildx ls
-        docker buildx build --platform linux/$arch -t my-package .
-      env:
-        arch: ${{ matrix.arch }}
+      - name: Build package
+        uses: jtdor/build-deb-action@v1
+        with:
+          apt-opts: --no-install-recommends
+          artifacts-dir: .
+          docker-image: debian:bullseye-slim
+          extra-build-deps: ''
+          host-arch: ${{ matrix.arch }}
+          before-build-hook: |
+            export DEBEMAIL="whit3rabbit <whiterabbit@protonmail.com>"
+            export DEBFULLNAME="whit3rabbit"
+            dch --create --distribution unstable --package my-package --newversion 1.0~${{ github.sha }} "Automated build for ${{ matrix.arch }} architecture"
+            dch --distribution unstable --package my-package --release ''
+          source-dir: .
       
-    - name: Start container
-      run: |
-        docker start my-container
-      
-    - name: Extract package name and version
-      run: |
-        PACKAGE_NAME=$(dpkg-parsechangelog | awk '/^Source:/ { print $2 }')
-        PACKAGE_VERSION=$(dpkg-parsechangelog | awk '/^Version:/ { print $2 }')
-        echo "Package name: $PACKAGE_NAME"
-        echo "Package version: $PACKAGE_VERSION"
-      shell: bash
-      
-    - name: Build package
-      run: |
-        docker exec -w /app my-container dpkg-buildpackage -us -uc
-        docker cp my-container:/app/${PACKAGE_NAME}_${PACKAGE_VERSION}_${arch}.deb .
-      env:
-        arch: ${{ matrix.arch }}
-      
-    - name: Stop container
-      run: |
-        docker stop my-container
-        docker rm my-container
-      
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
-        path: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: my-package_${{ github.sha }}_${{ matrix.arch }}.deb
+          path: my-package_${{ github.sha }}_${{ matrix.arch }}.deb
