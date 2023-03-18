@@ -54,6 +54,10 @@ jobs:
           sudo apt-get install -y devscripts
           debuild -us -uc -ui
 
+      - name: List directory contents
+        run: |
+          ls -la
+          
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
