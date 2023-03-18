@@ -38,15 +38,12 @@ jobs:
         run: |
           docker run --rm custom-dockcross > dockcross
           chmod +x dockcross
-          awk '{gsub(/dockcross\/linux-x64/, "custom-dockcross"); print}' dockcross > dockcross_modified
-          mv dockcross_modified dockcross
-          chmod +x dockcross
 
       - name: Configure and build
         run: |
           export CROSS_HOST_ARCH="${{ matrix.config.arch }}"
           export DOCKCROSS_IMAGE_TAG="${{ matrix.config.dockcross_image }}"
-          ./dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
+          ./dockcross --image custom-dockcross bash -c "export CC=${CROSS_HOST_ARCH}-linux-gnu-gcc && export CXX=${CROSS_HOST_ARCH}-linux-gnu-g++ && ./configure --host=${CROSS_HOST_ARCH}-linux-gnu && make"
 
       - name: Create DEB package
         run: |
