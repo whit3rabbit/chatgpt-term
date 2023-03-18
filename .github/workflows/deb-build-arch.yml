@@ -14,7 +14,7 @@ on:
         - debug
   push:
     branches:
-      - main
+      - workflow-test
 
 jobs:
   build-deb:
