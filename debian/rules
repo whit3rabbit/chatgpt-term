@@ -7,6 +7,3 @@ export DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
 override_dh_auto_configure:
 	./configure --host=$(DEB_HOST_ARCH)
-
-override_dh_strip:
-	dh_strip --no-automatic-dbgsym --dbg-package=none --exclude=chatgpt
