@@ -31,6 +31,7 @@ Losses mount, hope fades.
 ./chatgpt 
 Enter your question: capital of france
 The capital of France is Paris.
+```
 
 ## Building the ChatGPT tool
 
