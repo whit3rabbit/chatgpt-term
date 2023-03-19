@@ -6,7 +6,16 @@ prefix="/usr"
 includedir="/usr/include"
 libdir="/usr/lib"
 
-find /usr/local/ -name "cJSON.h" > /dev/null 2>&1
+if [ "$(uname -m)" = "x86_64" ]; then
+    CC="gcc"
+elif [ "$(uname -m)" = "aarch64" ]; then
+    CC="aarch64-linux-gnu-gcc"
+elif [ "$(uname -m)" = "armv7l" ]; then
+    CC="arm-linux-gnueabihf-gcc"
+else
+    echo "Unsupported architecture: $(uname -m)"
+    exit 1
+fi
 
 CFLAGS="-Wall -Wextra -O2 -g"
 CFLAGS="${CFLAGS} -I${includedir} -I${includedir}/cjson/"
@@ -16,6 +25,7 @@ LDFLAGS="-L${libdir} -L/usr/local/lib"
 LDFLAGS="${LDFLAGS} -lcurl -lcjson -lssl -lcrypto -lpthread -lz -ldl"
 
 cat << EOF > config.mk
+CC=${CC}
 CFLAGS=${CFLAGS}
 LDFLAGS=${LDFLAGS}
 PREFIX=${prefix}
