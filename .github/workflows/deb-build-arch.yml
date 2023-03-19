@@ -35,7 +35,6 @@ jobs:
           artifacts-dir: .
           docker-image: debian:bullseye-slim
           extra-build-deps: devscripts debhelper sudo libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
-          artifacts-dir: ./debian/artifacts
           before-build-hook: |
             ./configure
             sed -i "s/#debhelper//g" debian/control
