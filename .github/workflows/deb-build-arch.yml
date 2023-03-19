@@ -34,7 +34,7 @@ jobs:
           apt-opts: --no-install-recommends
           artifacts-dir: .
           docker-image: debian:bullseye-slim
-          extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev vi
+          extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
           host-arch: ${{ matrix.arch }}
           source-dir: .
       
