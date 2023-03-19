@@ -34,13 +34,8 @@ jobs:
           apt-opts: --no-install-recommends
           artifacts-dir: .
           docker-image: debian:bullseye-slim
-          extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
+          extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev vi
           host-arch: ${{ matrix.arch }}
-          before-build-hook: |
-            rm debian/changelog
-            export DEBEMAIL="whit3rabbit <whiterabbit@protonmail.com>"
-            export DEBFULLNAME="whit3rabbit"
-            dch --create --distribution unstable --newversion 0.01~${{ github.sha }} "Automated build for ${{ matrix.arch }} architecture"
           source-dir: .
       
       - name: Upload artifacts
