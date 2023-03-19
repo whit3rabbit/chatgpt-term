@@ -37,10 +37,10 @@ jobs:
           extra-build-deps: devscripts libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
           host-arch: ${{ matrix.arch }}
           before-build-hook: |
+            rm debian/changelog
             export DEBEMAIL="whit3rabbit <whiterabbit@protonmail.com>"
             export DEBFULLNAME="whit3rabbit"
-            dch --create --distribution unstable --package my-package --newversion 1.0~${{ github.sha }} "Automated build for ${{ matrix.arch }} architecture"
-            dch --distribution unstable --package my-package --release ''
+            dch --create --distribution unstable --newversion 0.01~${{ github.sha }} "Automated build for ${{ matrix.arch }} architecture"
           source-dir: .
       
       - name: Upload artifacts
