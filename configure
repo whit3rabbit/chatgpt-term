@@ -5,16 +5,12 @@ set -e
 prefix="/usr"
 includedir="/usr/include"
 libdir="/usr/lib"
+CC=gcc
 
-if [ "$(uname -m)" = "x86_64" ]; then
-    CC="gcc"
-elif [ "$(uname -m)" = "aarch64" ]; then
-    CC="aarch64-linux-gnu-gcc"
-elif [ "$(uname -m)" = "armv7l" ]; then
-    CC="arm-linux-gnueabihf-gcc"
-else
-    echo "Unsupported architecture: $(uname -m)"
-    exit 1
+if [ "$1" = "--host=arm64" ]; then
+  export CC=aarch64-linux-gnu-gcc
+elif [ "$1" = "--host=armhf" ]; then
+  export CC=arm-linux-gnueabihf-gcc
 fi
 
 CFLAGS="-Wall -Wextra -O2 -g"
