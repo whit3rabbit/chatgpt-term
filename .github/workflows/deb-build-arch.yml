@@ -44,5 +44,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
-          path: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
+          name: chatgpt_0.1_${{ matrix.arch }}.deb
+          path: chatgpt_0.1_${{ matrix.arch }}.deb

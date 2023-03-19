@@ -6,8 +6,6 @@ prefix="/usr"
 includedir="/usr/include"
 libdir="/usr/lib"
 
-CC="gcc"
-
 find /usr/local/ -name "cJSON.h" > /dev/null 2>&1
 
 CFLAGS="-Wall -Wextra -O2 -g"
@@ -18,7 +16,6 @@ LDFLAGS="-L${libdir} -L/usr/local/lib"
 LDFLAGS="${LDFLAGS} -lcurl -lcjson -lssl -lcrypto -lpthread -lz -ldl"
 
 cat << EOF > config.mk
-CC=${CC}
 CFLAGS=${CFLAGS}
 LDFLAGS=${LDFLAGS}
 PREFIX=${prefix}
