@@ -1,0 +1,48 @@
+name: Cross-compile
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+        - info
+        - warning
+        - debug
+  push:
+    branches:
+      - workflow-test
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        arch: [arm64, amd64]
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Build package
+        uses: jtdor/build-deb-action@v1
+        with:
+          apt-opts: --no-install-recommends
+          artifacts-dir: .
+          docker-image: debian:bullseye-slim
+          extra-build-deps: devscripts debhelper sudo libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
+          before-build-hook: |
+            ./configure
+            sed -i "s/#debhelper//g" debian/control
+          host-arch: ${{ matrix.arch }}
+          source-dir: .
+      
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: chatgpt_0.01_${{ matrix.arch }}.deb
+          path: chatgpt_0.01_${{ matrix.arch }}.deb
