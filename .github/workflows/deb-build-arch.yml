@@ -35,6 +35,7 @@ jobs:
           artifacts-dir: .
           docker-image: debian:bullseye-slim
           extra-build-deps: devscripts debhelper libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
+          before-build-hook: ./configure
           host-arch: ${{ matrix.arch }}
           source-dir: .
       
