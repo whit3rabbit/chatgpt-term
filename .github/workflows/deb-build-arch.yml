@@ -35,12 +35,15 @@ jobs:
           artifacts-dir: .
           docker-image: debian:bullseye-slim
           extra-build-deps: devscripts debhelper sudo libssl-dev libcrypto++-dev zlib1g-dev libcurl4-openssl-dev libcjson-dev
-          before-build-hook: ./configure
+          artifacts-dir: ./debian/artifacts
+          before-build-hook: |
+            ./configure
+            sed -i "s/#debhelper//g" debian/control
           host-arch: ${{ matrix.arch }}
           source-dir: .
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: chatgpt_0.01_${{ matrix.arch }}.deb
-          path: chatgpt_0.01_${{ matrix.arch }}.deb
+          name: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb
+          path: ${{ env.PACKAGE_NAME }}_${{ env.PACKAGE_VERSION }}_${{ matrix.arch }}.deb

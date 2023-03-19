@@ -1,13 +1,39 @@
 #!/usr/bin/make -f
 
 %:
-        dh $@
+	dh $@
+
+override_dh_strip:
+	dh_strip --exclude=chatgpt-dbgsym
+
+override_dh_auto_clean:
+	$(MAKE) -j2 distclean || true
+	rm -f config.mk
+	dh_auto_clean
 
 override_dh_auto_configure:
-        ./configure
+	./configure --prefix=/usr
 
-override_dh_auto_build:
-        make
+override_dh_missing:
+	dh_missing --fail-missing
 
-override_dh_install:
-        dh_install --fail-missing
+override_dh_auto_install:
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/chatgpt
+
+override_dh_auto_test:
+	$(MAKE) check
+
+override_dh_installinit:
+	dh_installinit --no-start
+
+override_dh_systemd_enable:
+	dh_systemd_enable --no-enable
+
+override_dh_dwz:
+	echo "Skipping dwz, unsupported on this arch."
+
+override_dh_fixperms:
+	dh_fixperms --exclude=var
+
+override_dh_builddeb:
+	dh_builddeb -- --unsigned-source --unsigned-changes
