@@ -9,6 +9,29 @@ A command-line tool to interact with OpenAI's GPT-3.5-turbo model using the Open
 - `libcurl`, `cJSON`, and their development files
 - An OpenAI API key
 
+## Download
+
+Click the releases link on the right.  There are deb files or a static binary for 64bit system.
+Install on debian based OS using:
+```
+dpkg -i chatgpt*.deb
+```
+
+## Usage
+
+1. Run the ChatGPT tool with a question:
+```
+./chatgpt "tell me a haiku about market crash"
+Stocks tumble, prices fall
+Panic grips the market floor
+Losses mount, hope fades.
+```
+2. Alternatively, you can run the ChatGPT tool and enter the question when prompted:
+```
+./chatgpt 
+Enter your question: capital of france
+The capital of France is Paris.
+
 ## Building the ChatGPT tool
 
 1. Clone the repository:
@@ -76,21 +99,7 @@ MODEL=gpt-3.5-turbo
 ```
 make local
 ```
-## Usage
 
-1. Run the ChatGPT tool with a question:
-```
-./chatgpt "tell me a haiku about market crash"
-Stocks tumble, prices fall
-Panic grips the market floor
-Losses mount, hope fades.
-```
-2. Alternatively, you can run the ChatGPT tool and enter the question when prompted:
-```
-./chatgpt 
-Enter your question: capital of france
-The capital of France is Paris.
-```
 ## Clean up
 
 To clean up the compiled files, run:
