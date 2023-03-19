@@ -42,5 +42,5 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: my-package_${{ github.sha }}_${{ matrix.arch }}.deb
-          path: my-package_${{ github.sha }}_${{ matrix.arch }}.deb
+          name: chatgpt_0.01_${{ matrix.arch }}.deb
+          path: chatgpt_0.01_${{ matrix.arch }}.deb
